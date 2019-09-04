@@ -3,8 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from back import Bone, utils
-from datasets import imagenet
-from models.resnet_with_block import resnet50, se_resnet50, srm_resnet50
+from resnet_with_block import resnet50, se_resnet50, srm_resnet50
 
 data_dir = 'imagenet'
 model_names = ['resnet', 'senet', 'srmnet']

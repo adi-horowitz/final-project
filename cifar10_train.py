@@ -3,9 +3,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import MultiStepLR
 from back import Bone, utils
-from datasets import cifar10
-from models.resnet_with_block import cifar_resnet32, cifar_se_resnet32,\
-    cifar_srm_resnet32
+from resnet_with_block import cifar_resnet32, cifar_se_resnet32,\
+ cifar_srm_resnet32
 
 data_dir = 'cifar10'
 model_names = ['resnet', 'senet', 'srmnet']
@@ -47,3 +46,4 @@ backbone = Bone(model,
                 log_dir=f'logs/cifar_{args.model_name}')
 
 backbone.fit(epochs_count)
+
