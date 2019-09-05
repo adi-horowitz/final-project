@@ -290,7 +290,7 @@ if __name__ == '__main__':
     data_dir = 'cifar10'
     dl_train = DataLoader(dataset = cifar10.get_datasets(data_dir)['train'], batch_size = batch_size, num_workers = num_workers)
     dl_test = DataLoader(dataset = cifar10.get_datasets(data_dir)['val'], batch_size = batch_size, num_workers = num_workers)
-
+    '''
     # srmnet:
     model = cifar_srm_resnet32(num_classes=num_classes)
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
@@ -298,12 +298,16 @@ if __name__ == '__main__':
     loss_fn = nn.CrossEntropyLoss()
     srm = SRMTrainer(model, loss_fn, optimizer)
     print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
-
 '''
 
     # senet:
     model = cifar_se_resnet32(num_classes=num_classes)
-    
+        optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                          weight_decay=1e-4)
+    loss_fn = nn.CrossEntropyLoss()
+    srm = SRMTrainer(model, loss_fn, optimizer)
+    print (srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+'''
     # resnet:
     model = cifar_resnet32(num_classes=num_classes)
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
