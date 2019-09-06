@@ -1,6 +1,6 @@
 import torch.nn as nn
 from torchvision.models import ResNet
-from layer_blocks import SELayer, SRMLayer
+from layer_blocks import SELayer, SRMLayer, OURSRMLayer
 
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -266,5 +266,9 @@ def cifar_se_resnet32(**kwargs):
 
 def cifar_srm_resnet32(**kwargs):
     model = CifarResNetWithBlock(5, layer_block=SRMLayer, **kwargs)
+    return model
+
+def cifar_oursrm_resnet32(**kwargs):
+    model = CifarResNetWithBlock(5, layer_block=OURSRMLayer, **kwargs)
     return model
 
