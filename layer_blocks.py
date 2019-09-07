@@ -68,6 +68,7 @@ class SRMLayer(nn.Module):
 
         return x * g.expand_as(x)
 
+
 class OURSRMLayer(nn.Module):
     def __init__(self, channel, reduction=None):
         # Reduction for compatibility with layer_block interface
@@ -78,6 +79,7 @@ class OURSRMLayer(nn.Module):
                              groups=channel)
         self.bn = nn.BatchNorm1d(channel)
         self.gram = GramMatrix()
+
     def forward(self, x):
         b, c, _, _ = x.size()
 

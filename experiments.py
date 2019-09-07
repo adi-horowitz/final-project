@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from typing import Callable, Any
 from pathlib import Path
 from train_results import BatchResult, EpochResult, FitResult
-
+import imagenet
 
 class Trainer(abc.ABC):
     """
@@ -314,7 +314,7 @@ def run_model(data_name, model_name):
                                   weight_decay=1e-4)
             scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
             loss_fn = nn.CrossEntropyLoss()
-            srm = SRMTrainer(model, loss_fn, optimizer)
+            srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
             print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
         elif model_name == "resnet":
             model = cifar_resnet32(num_classes=num_classes)
@@ -322,7 +322,7 @@ def run_model(data_name, model_name):
                                   weight_decay=1e-4)
             scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
             loss_fn = nn.CrossEntropyLoss()
-            srm = SRMTrainer(model, loss_fn, optimizer)
+            srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
             print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
     else:
         # parametes:
@@ -342,7 +342,7 @@ def run_model(data_name, model_name):
                                   weight_decay=1e-4)
             scheduler = StepLR(optimizer, 30, 0.1)
             loss_fn = nn.CrossEntropyLoss()
-            srm = SRMTrainer(model, loss_fn, optimizer)
+            srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
             print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
         elif model_name == "srm":
             model = srm_resnet50(num_classes=num_classes)
@@ -350,7 +350,7 @@ def run_model(data_name, model_name):
                                   weight_decay=1e-4)
             scheduler = StepLR(optimizer, 30, 0.1)
             loss_fn = nn.CrossEntropyLoss()
-            srm = SRMTrainer(model, loss_fn, optimizer)
+            srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
             print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
         elif model_name == "se":
             model = se_resnet50(num_classes=num_classes)
@@ -358,7 +358,7 @@ def run_model(data_name, model_name):
                                   weight_decay=1e-4)
             scheduler = StepLR(optimizer, 30, 0.1)
             loss_fn = nn.CrossEntropyLoss()
-            srm = SRMTrainer(model, loss_fn, optimizer)
+            srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
             print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
         elif model_name == "resnet":
             model = resnet50(num_classes=num_classes)
@@ -366,13 +366,12 @@ def run_model(data_name, model_name):
                                   weight_decay=1e-4)
             scheduler = StepLR(optimizer, 30, 0.1)
             loss_fn = nn.CrossEntropyLoss()
-            srm = SRMTrainer(model, loss_fn, optimizer)
+            srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
             print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
 
 
 if __name__ == '__main__':
-
-    run_model("cifar", "oursrm")
+    run_model("", "oursrm")
 
 
 
