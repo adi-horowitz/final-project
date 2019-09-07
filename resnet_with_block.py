@@ -1,7 +1,7 @@
 import torch.nn as nn
 from torchvision.models import ResNet
-from layer_blocks import SELayer, SRMLayer, OURSRMLayer
-
+from layer_blocks import SELayer, SRMWithCorrMatrix, SRMLayer, SRMWithMedian
+import layer_blocks
 
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -57,7 +57,7 @@ def basic_block_factory(layer_block=None):
     return BasicBlock
 
 
-def bottleneck_factory_with_layer_at_end(layer_block=OURSRMLayer):
+def bottleneck_factory_with_layer_at_end(layer_block=SRMWithCorrMatrix):
     # Factory for using torchvision ResNet class
     class Bottleneck(nn.Module):
         expansion = 4
@@ -238,7 +238,7 @@ def se_resnet34(num_classes=1000):
 
 
 def srm_resnet34(num_classes=1000):
-    model = ResNet(basic_block_factory(layer_block=SRMLayer), [3, 4, 6, 3],
+    model = ResNet(basic_block_factory(layer_block=SRMWithCorrMatrix), [3, 4, 6, 3],
                    num_classes=num_classes)
     model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
@@ -260,14 +260,14 @@ def se_resnet50(num_classes=1000):
 
 
 def srm_resnet50(num_classes=1000):
-    model = ResNet(bottleneck_factory(layer_block=SRMLayer), [3, 4, 6, 3],
+    model = ResNet(bottleneck_factory(layer_block=SRMWithCorrMatrix), [3, 4, 6, 3],
                    num_classes=num_classes)
     model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
 
 
 def oursrm_resnet50(num_classes=1000):
-    model = ResNet(bottleneck_factory(layer_block=OURSRMLayer), [3, 4, 6, 3],
+    model = ResNet(bottleneck_factory(layer_block=SRMWithCorrMatrix), [3, 4, 6, 3],
                    num_classes=num_classes)
     model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
@@ -288,7 +288,7 @@ def se_resnet101(num_classes=1000):
 
 
 def srm_resnet101(num_classes=1000):
-    model = ResNet(bottleneck_factory(layer_block=SRMLayer), [3, 4, 23, 3],
+    model = ResNet(bottleneck_factory(layer_block=SRMWithCorrMatrix), [3, 4, 23, 3],
                    num_classes=num_classes)
     model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
@@ -326,7 +326,18 @@ def cifar_srm_resnet32(**kwargs):
     model = CifarResNetWithBlock(5, layer_block=SRMLayer, **kwargs)
     return model
 
-def cifar_oursrm_resnet32(**kwargs):
-    model = CifarResNetWithBlock(5, layer_block=OURSRMLayer, **kwargs)
+
+def cifar_srm_with_corr_matrix_resnet32(**kwargs):
+    model = CifarResNetWithBlock(5, layer_block=SRMWithCorrMatrix, **kwargs)
+    return model
+
+
+def cifar_srm_with_median_resnet32(**kwargs):
+    model = CifarResNetWithBlock(5, layer_block=SRMWithMedian, **kwargs)
+    return model
+
+
+def cifar_srm_with_median_and_corr_matrix_resnet32(**kwargs):
+    model = CifarResNetWithBlock(5, layer_block=layer_blocks.SRMWithMedianAndCorrMatrix, **kwargs)
     return model
 

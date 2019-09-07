@@ -7,7 +7,6 @@ from torch import nn
 
 
 class GramMatrix(nn.Module):
-
     def forward(self, input):
         a, b, c, d = input.size()
         # a = batch size
@@ -69,13 +68,43 @@ class SRMLayer(nn.Module):
         return x * g.expand_as(x)
 
 
-class OURSRMLayer(nn.Module):
+class SRMWithMedian(nn.Module):
     def __init__(self, channel, reduction=None):
         # Reduction for compatibility with layer_block interface
-        super(OURSRMLayer, self).__init__()
+        super(SRMWithMedian, self).__init__()
 
         # CFC: channel-wise fully connected layer
-        self.cfc = nn.Conv1d(channel, channel, kernel_size=2+channel, bias=False,
+        self.cfc = nn.Conv1d(channel, channel, kernel_size=3, bias=False,
+                             groups=channel)
+        self.bn = nn.BatchNorm1d(channel)
+        self.gram = GramMatrix()
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+
+        # Style pooling
+        mean = x.view(b, c, -1).mean(-1).unsqueeze(-1)
+        std = x.view(b, c, -1).std(-1).unsqueeze(-1)
+        median = x.view(b, c, -1).median(-1)[0].unsqueeze(-1)
+
+        u = torch.cat((mean, std, median), -1)  # (b, c, 3)
+
+        # Style integration
+        z = self.cfc(u)  # (b, c, 1)
+        z = self.bn(z)
+        g = torch.sigmoid(z)
+        g = g.view(b, c, 1, 1)
+
+        return x * g.expand_as(x)
+
+
+class SRMWithCorrMatrix(nn.Module):
+    def __init__(self, channel, reduction=None):
+        # Reduction for compatibility with layer_block interface
+        super(SRMWithCorrMatrix, self).__init__()
+
+        # CFC: channel-wise fully connected layer
+        self.cfc = nn.Conv1d(channel, channel, kernel_size=2 + channel, bias=False,
                              groups=channel)
         self.bn = nn.BatchNorm1d(channel)
         self.gram = GramMatrix()
@@ -97,5 +126,38 @@ class OURSRMLayer(nn.Module):
         g = g.view(b, c, 1, 1)
 
         return x * g.expand_as(x)
+
+
+class SRMWithMedianAndCorrMatrix(nn.Module):
+    def __init__(self, channel, reduction=None):
+        # Reduction for compatibility with layer_block interface
+        super(SRMWithMedianAndCorrMatrix, self).__init__()
+
+        # CFC: channel-wise fully connected layer
+        self.cfc = nn.Conv1d(channel, channel, kernel_size=3+channel, bias=False,
+                             groups=channel)
+        self.bn = nn.BatchNorm1d(channel)
+        self.gram = GramMatrix()
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+
+        # Style pooling
+        mean = x.view(b, c, -1).mean(-1).unsqueeze(-1)
+        std = x.view(b, c, -1).std(-1).unsqueeze(-1)
+        median = x.view(b, c, -1).median(-1)[0].unsqueeze(-1)
+        gram = self.gram(x)
+
+        u = torch.cat((mean, std, median, gram), -1)  # (b, c, 2+c)
+
+        # Style integration
+        z = self.cfc(u)  # (b, c, 1)
+        z = self.bn(z)
+        g = torch.sigmoid(z)
+        g = g.view(b, c, 1, 1)
+
+        return x * g.expand_as(x)
+
+
 
 
