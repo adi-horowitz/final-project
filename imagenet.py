@@ -30,3 +30,4 @@ def get_datasets(data_dir):
         'val': torchvision.datasets.ImageFolder(root=val_dir,
                                                 transform=transform_test)
     }
+

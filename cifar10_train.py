@@ -5,6 +5,7 @@ from torch.optim.lr_scheduler import MultiStepLR
 from back import Bone, utils
 from resnet_with_block import cifar_resnet32, cifar_se_resnet32,\
  cifar_srm_resnet32
+import cifar10
 
 data_dir = 'cifar10'
 model_names = ['resnet', 'senet', 'srmnet']

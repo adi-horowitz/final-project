@@ -1,10 +1,10 @@
 import torch.nn as nn
 import torch.optim as optim
-from torch.optim.lr_scheduler import MultiStepLR
+from torch.optim.lr_scheduler import MultiStepLR, StepLR
 from back import Bone, utils
 from resnet_with_block import cifar_resnet32, cifar_se_resnet32,\
-   cifar_srm_resnet32, cifar_oursrm_resnet32
-import cifar10
+   cifar_srm_resnet32, cifar_oursrm_resnet32, srm_resnet50, se_resnet50, resnet50, oursrm_resnet50
+import cifar10, imagenet
 
 import abc
 import os
@@ -28,7 +28,7 @@ class Trainer(abc.ABC):
     - Single batch (train_batch/test_batch)
     """
 
-    def __init__(self, model, loss_fn, optimizer, device='cpu'):
+    def __init__(self, model, loss_fn, optimizer, scheduler, device='cpu'):
         """
         Initialize the trainer.
         :param model: Instance of the model to train.
@@ -39,6 +39,7 @@ class Trainer(abc.ABC):
         self.model = model
         self.loss_fn = loss_fn
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.device = device
         model.to(self.device)
 
@@ -227,8 +228,8 @@ class Trainer(abc.ABC):
 
 
 class SRMTrainer(Trainer):
-    def __init__(self, model, loss_fn, optimizer, device=None):
-        super().__init__(model, loss_fn, optimizer, device)
+    def __init__(self, model, loss_fn, optimizer, scheduler, device=None):
+        super().__init__(model, loss_fn, optimizer, scheduler, device)
 
 
     def train_epoch(self, dl_train: DataLoader, **kw):
@@ -256,6 +257,7 @@ class SRMTrainer(Trainer):
         loss = self.loss_fn.forward(scores, y)
         loss.backward()
         self.optimizer.step()
+        self.scheduler.step()
         y_hat = torch.argmax(scores, dim=1)
         num_correct = torch.sum(y_hat == y)
         return BatchResult(loss.item(), num_correct.item())
@@ -278,49 +280,101 @@ class SRMTrainer(Trainer):
         return BatchResult(loss.item(), num_correct.item())
 
 
+def run_model(data_name, model_name):
+    if data_name=="cifar":
+        # parameters:
+        num_classes = 10
+        batch_size = 128
+        epochs_count = 100
+        num_workers = 8
+        # load data cifar:
+        data_dir = 'cifar10'
+        dl_train = DataLoader(dataset=cifar10.get_datasets(data_dir)['train'], batch_size=batch_size,
+                              num_workers=num_workers)
+        dl_test = DataLoader(dataset=cifar10.get_datasets(data_dir)['val'], batch_size=batch_size,
+                             num_workers=num_workers)
+        if model_name == "oursrm":
+            model = cifar_oursrm_resnet32(num_classes=num_classes)
+            optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                                  weight_decay=1e-4)
+            scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
+            loss_fn = nn.CrossEntropyLoss()
+            srm = SRMTrainer(model, loss_fn, optimizer)
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+        elif model_name == "srm":
+            model = cifar_srm_resnet32(num_classes=num_classes)
+            optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                                  weight_decay=1e-4)
+            scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
+            loss_fn = nn.CrossEntropyLoss()
+            srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+        elif model_name == "se":
+            model = cifar_se_resnet32(num_classes=num_classes)
+            optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                                  weight_decay=1e-4)
+            scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
+            loss_fn = nn.CrossEntropyLoss()
+            srm = SRMTrainer(model, loss_fn, optimizer)
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+        elif model_name == "resnet":
+            model = cifar_resnet32(num_classes=num_classes)
+            optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                                  weight_decay=1e-4)
+            scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
+            loss_fn = nn.CrossEntropyLoss()
+            srm = SRMTrainer(model, loss_fn, optimizer)
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+    else:
+        # parametes:
+        num_classes = 1000
+        batch_size = 64
+        epochs_count = 100
+        num_workers = 16
+        # load data imagenet:
+        data_dir = 'imagenet'
+        dl_train = DataLoader(dataset=imagenet.get_datasets(data_dir)['train'], batch_size=batch_size,
+                                       num_workers=num_workers)
+        dl_test = DataLoader(dataset=imagenet.get_datasets(data_dir)['val'], batch_size=batch_size,
+                                      num_workers=num_workers)
+        if model_name == "oursrm":
+            model = oursrm_resnet50(num_classes=num_classes)
+            optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                                  weight_decay=1e-4)
+            scheduler = StepLR(optimizer, 30, 0.1)
+            loss_fn = nn.CrossEntropyLoss()
+            srm = SRMTrainer(model, loss_fn, optimizer)
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+        elif model_name == "srm":
+            model = srm_resnet50(num_classes=num_classes)
+            optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                                  weight_decay=1e-4)
+            scheduler = StepLR(optimizer, 30, 0.1)
+            loss_fn = nn.CrossEntropyLoss()
+            srm = SRMTrainer(model, loss_fn, optimizer)
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+        elif model_name == "se":
+            model = se_resnet50(num_classes=num_classes)
+            optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                                  weight_decay=1e-4)
+            scheduler = StepLR(optimizer, 30, 0.1)
+            loss_fn = nn.CrossEntropyLoss()
+            srm = SRMTrainer(model, loss_fn, optimizer)
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+        elif model_name == "resnet":
+            model = resnet50(num_classes=num_classes)
+            optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
+                                  weight_decay=1e-4)
+            scheduler = StepLR(optimizer, 30, 0.1)
+            loss_fn = nn.CrossEntropyLoss()
+            srm = SRMTrainer(model, loss_fn, optimizer)
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+
+
 if __name__ == '__main__':
 
-    # parameters:
-    num_classes = 10
-    batch_size = 128
-    epochs_count = 100
-    num_workers = 8
+    run_model("cifar", "srm")
 
-    # load data:
-    data_dir = 'cifar10'
-    dl_train = DataLoader(dataset = cifar10.get_datasets(data_dir)['train'], batch_size = batch_size, num_workers = num_workers)
-    dl_test = DataLoader(dataset = cifar10.get_datasets(data_dir)['val'], batch_size = batch_size, num_workers = num_workers)
 
-    # oursrmnet:
-    model = cifar_oursrm_resnet32(num_classes=num_classes)
-    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
-                          weight_decay=1e-4)
-    loss_fn = nn.CrossEntropyLoss()
-    srm = SRMTrainer(model, loss_fn, optimizer)
-    print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
 
-'''
-    # srmnet:
-    model = cifar_srm_resnet32(num_classes=num_classes)
-    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
-                          weight_decay=1e-4)
-    loss_fn = nn.CrossEntropyLoss()
-    srm = SRMTrainer(model, loss_fn, optimizer)
-    print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
 
-    # senet:
-    model = cifar_se_resnet32(num_classes=num_classes)
-        optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
-                          weight_decay=1e-4)
-    loss_fn = nn.CrossEntropyLoss()
-    srm = SRMTrainer(model, loss_fn, optimizer)
-    print (srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
-
-    # resnet:
-    model = cifar_resnet32(num_classes=num_classes)
-    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
-                          weight_decay=1e-4)
-    loss_fn = nn.CrossEntropyLoss()
-    srm = SRMTrainer(model, loss_fn, optimizer)
-    print (srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
-'''

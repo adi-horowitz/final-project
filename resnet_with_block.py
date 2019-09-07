@@ -213,6 +213,11 @@ def srm_resnet50(num_classes=1000):
     model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
 
+def oursrm_resnet50(num_classes=1000):
+    model = ResNet(bottleneck_factory(layer_block=OURSRMLayer), [3, 4, 6, 3],
+                   num_classes=num_classes)
+    model.avgpool = nn.AdaptiveAvgPool2d(1)
+    return model
 
 # ImageNet ResNets101
 def resnet101(num_classes=1000):
