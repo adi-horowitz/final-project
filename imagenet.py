@@ -21,13 +21,24 @@ transform_test = transforms.Compose([
 
 
 def get_datasets(data_dir):
-    train_dir = os.path.join(data_dir, 'train')
-    val_dir = os.path.join(data_dir, 'val')
-
     return {
-        'train': torchvision.datasets.ImageFolder(root=train_dir,
-                                                  transform=transform_train),
-        'val': torchvision.datasets.ImageFolder(root=val_dir,
-                                                transform=transform_test)
+        'train': torchvision.datasets.ImageNet(root=data_dir,
+                                              train=True,
+                                              download=True,
+                                              transform=transform_train),
+        'val': torchvision.datasets.ImageNet(root=data_dir,
+                                            train=False,
+                                            download=True,
+                                            transform=transform_test)
     }
+# def get_datasets(data_dir):
+#     train_dir = os.path.join(data_dir, 'train')
+#     val_dir = os.path.join(data_dir, 'val')
+#
+#     return {
+#         'train': torchvision.datasets.ImageFolder(root=train_dir,
+#                                               transform=transform_train),
+#         'val': torchvision.datasets.ImageFolder(root=val_dir,
+#                                                 transform=transform_test)
+#     }
 
