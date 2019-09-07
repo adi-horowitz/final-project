@@ -373,7 +373,7 @@ def run_model(data_name, model_name):
 
 if __name__ == '__main__':
 
-    run_model("cifar", "srm")
+    run_model("cifar", "oursrm")
 
 
 
