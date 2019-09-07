@@ -1,10 +1,9 @@
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import MultiStepLR, StepLR
-from back import Bone, utils
 from resnet_with_block import cifar_resnet32, cifar_se_resnet32,\
    cifar_srm_resnet32, cifar_oursrm_resnet32, srm_resnet50, se_resnet50, resnet50, oursrm_resnet50
-import cifar10, imagenet
+import cifar10
 
 import abc
 import os
@@ -299,7 +298,7 @@ def run_model(data_name, model_name):
                                   weight_decay=1e-4)
             scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
             loss_fn = nn.CrossEntropyLoss()
-            srm = SRMTrainer(model, loss_fn, optimizer)
+            srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
             print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
         elif model_name == "srm":
             model = cifar_srm_resnet32(num_classes=num_classes)
