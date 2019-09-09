@@ -37,7 +37,7 @@ class Trainer(abc.ABC):
     def fit(self, dl_train: DataLoader, dl_test: DataLoader,
             num_epochs, checkpoints: str = None,
             early_stopping: int = None,
-            print_every=1, post_epoch_fn=None, checkpoint_filename=None, **kw) -> FitResult:
+            print_every=1, post_epoch_fn=None, **kw) -> FitResult:
 
         """
         Trains the model for multiple epochs with a given training set,
@@ -61,6 +61,7 @@ class Trainer(abc.ABC):
         best_acc = None
         epochs_without_improvement = 0
 
+        checkpoint_filename=None
         if checkpoints is not None:
             checkpoint_filename = f'{checkpoints}.pt'
             Path(os.path.dirname(checkpoint_filename)).mkdir(exist_ok=True)
