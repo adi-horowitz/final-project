@@ -48,7 +48,7 @@ def run_model(data_name, model_name):
             scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
             loss_fn = nn.CrossEntropyLoss()
             srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
-            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+            print_with_plot(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count, checkpoints=model_name))
         elif model_name == "srm_with_median":
             model = cifar_srm_with_median_resnet32(num_classes=num_classes)
             optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
@@ -128,7 +128,7 @@ def run_model(data_name, model_name):
 
 
 if __name__ == '__main__':
-    run_model("cifar", "srm")
+    run_model("cifar", "srm_with_median_and_corr_matrix")
 
 
 
