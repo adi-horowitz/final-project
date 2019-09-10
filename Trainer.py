@@ -61,6 +61,8 @@ class Trainer(abc.ABC):
         best_acc = None
         epochs_without_improvement = 0
 
+        epochs_so_far = 0
+
         checkpoint_filename=None
         if checkpoints is not None:
             checkpoint_filename = f'{checkpoints}.pt'
@@ -72,9 +74,11 @@ class Trainer(abc.ABC):
                 best_acc = saved_state.get('best_acc', best_acc)
                 epochs_without_improvement =\
                     saved_state.get('ewi', epochs_without_improvement)
+                epochs_so_far = saved_state.get('esf', epochs_so_far)
+                actual_num_epochs += epochs_so_far
                 self.model.load_state_dict(saved_state['model_state'])
 
-        for epoch in range(num_epochs):
+        for epoch in range(num_epochs-epochs_so_far):
             save_checkpoint = True
             verbose = False  # pass this to train/test_epoch.
             if epoch % print_every == 0 or epoch == num_epochs - 1:
@@ -111,7 +115,8 @@ class Trainer(abc.ABC):
             if save_checkpoint and checkpoint_filename is not None:
                 saved_state = dict(best_acc=best_acc,
                                    ewi=epochs_without_improvement,
-                                   model_state=self.model.state_dict())
+                                   model_state=self.model.state_dict(),
+                                   esf=epochs_so_far)
                 torch.save(saved_state, checkpoint_filename)
                 print(f'*** Saved checkpoint {checkpoint_filename} '
                       f'at epoch {epoch+1}')
