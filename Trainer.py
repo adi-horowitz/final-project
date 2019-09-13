@@ -77,6 +77,12 @@ class Trainer(abc.ABC):
                 actual_num_epochs += epochs_so_far
                 self.model.load_state_dict(saved_state['model_state'])
 
+        if epochs_so_far == num_epochs:
+            batches = kw.get("max_batches") if "max_batches" in kw else None
+            test_res = self.test_epoch(dl_test, max_batches=batches)
+            test_loss.append(sum(test_res.losses) / len(test_res.losses))
+            test_acc.append(test_res.accuracy)
+
         for epoch in range(epochs_so_far, num_epochs):
             save_checkpoint = True
             verbose = False  # pass this to train/test_epoch.
