@@ -122,4 +122,4 @@ def plot_fit(fit_res: FitResult, fig=None, log_loss=False, legend=None):
         if legend:
             ax.legend()
 
-    return fig, axes
+    plt.show()

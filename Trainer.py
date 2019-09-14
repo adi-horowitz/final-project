@@ -121,7 +121,9 @@ class Trainer(abc.ABC):
                 saved_state = dict(best_acc=best_acc,
                                    ewi=epochs_without_improvement,
                                    model_state=self.model.state_dict(),
-                                   esf=epoch+1)
+                                   esf=epoch+1,
+                                   fit_result=FitResult(actual_num_epochs, train_loss, train_acc, test_loss, test_acc))
+
                 torch.save(saved_state, checkpoint_filename)
                 print(f'*** Saved checkpoint {checkpoint_filename} '
                       f'at epoch {epoch+1}')
