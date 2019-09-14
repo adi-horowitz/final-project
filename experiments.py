@@ -128,7 +128,7 @@ def run_model(data_name, model_name):
 
 
 if __name__ == '__main__':
-    run_model("cifar", "srm_with_median")
+    run_model("cifar", "srm")
 
 
 
