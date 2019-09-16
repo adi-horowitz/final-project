@@ -3,11 +3,11 @@ An implementation of "SRM : A Style-based Recalibration Module for Convolutional
 
 ## Implementation
 #### experiments.py
-Implementing main function and run the requested model.
+Run the requested model on the preffered dataset.
 #### layer_blocks.py 
-Implementation of SE block as well as SRM block, including all variations and attemps for improving the original SRM block proposed in the paper.
+Implementation of SE block as well as SRM block. Including all variations and attemps for improving the original SRM block proposed in the paper.
 #### resnet_with_block
-Combine the different layer blocks impkemented in layer_blocks.py with resnet architecture. 
+Combine the different layer blocks implemented in layer_blocks.py with resnet architecture. 
 #### Trainer
 Containing a class abstracting the various tasks of training models, and a specific SRM trainer.
 #### cifar10.py
