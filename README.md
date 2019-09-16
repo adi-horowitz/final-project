@@ -2,28 +2,32 @@
 An implementation of "SRM : A Style-based Recalibration Module for Convolutional Neural Networks".
 
 ## Implementation
-experiments.py - implementing main function and run the requested model.
-layer_blocks.py - implementation of SE block as well as SRM block, including all variations and attemps for improving the original SRM block proposed in the paper.
-resnet_with_block - combine the different layer blocks impkemented in layer_blocks.py with resnet architecture. 
-Trainer - containing a class abstracting the various tasks of training models, and a specific SRM trainer.
-cifar10.py - an interface for loading cifar10 dataset.
-plot.py , print_fit_result.py - those are intended to print the results of the experiments.
+#### experiments.py
+Implementing main function and run the requested model.
+#### layer_blocks.py 
+Implementation of SE block as well as SRM block, including all variations and attemps for improving the original SRM block proposed in the paper.
+#### resnet_with_block
+Combine the different layer blocks impkemented in layer_blocks.py with resnet architecture. 
+#### Trainer
+Containing a class abstracting the various tasks of training models, and a specific SRM trainer.
+#### cifar10.py
+An interface for loading cifar10 dataset.
+#### plot.py print_fit_result.py
+Those files are intended to print the results of the experiments.
 
 
-### Training
-python experiment.py --model_name <model_name>
+## Training
+#### python experiment.py --model_name <model_name>
 
-while model_name is one of:
+model_name options are:
 1. srmnet
-2. se
+2. senet
 3. resnet
 4. srm_with_corr
 5. srm_with_median
-6. srm_with_median_and_corr_matrix
-
+6. srm_median_and_corr
 
 ```
-
 ## Training parameters
 ### Cifar
 ```python
