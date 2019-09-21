@@ -76,6 +76,9 @@ class Trainer(abc.ABC):
                 epochs_so_far = saved_state.get('esf', epochs_so_far)
                 actual_num_epochs += epochs_so_far
                 self.model.load_state_dict(saved_state['model_state'])
+                fit_res = saved_state['fit_result']
+                train_loss, train_acc, test_loss, test_acc = \
+                    fit_res[1], fit_res[2], fit_res[3], fit_res[4]
 
         if epochs_so_far == num_epochs:
             batches = kw.get("max_batches") if "max_batches" in kw else None

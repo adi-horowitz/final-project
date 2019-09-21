@@ -72,7 +72,7 @@ def run_model(data_name, model_name):
             scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
             loss_fn = nn.CrossEntropyLoss()
             srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
-            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count, checkpoints=model_name))
         elif model_name == "resnet":
             model = cifar_resnet32(num_classes=num_classes)
             optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9,
@@ -80,7 +80,7 @@ def run_model(data_name, model_name):
             scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [70, 80], 0.1)
             loss_fn = nn.CrossEntropyLoss()
             srm = SRMTrainer(model, loss_fn, optimizer, scheduler)
-            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count))
+            print(srm.fit(dl_train=dl_train, dl_test=dl_test, num_epochs=epochs_count, checkpoints=model_name))
     else:
         # parametes:
         num_classes = 1000
