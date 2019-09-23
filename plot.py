@@ -123,3 +123,49 @@ def plot_fit(fit_res: FitResult, fig=None, log_loss=False, legend=None):
             ax.legend()
 
     plt.show()
+    # plt.savefig('resnet.png')
+
+
+if __name__ == '__main__':
+
+    fp = open("slurm-test-srmnet.out",'rb')
+    fr = FitResult(num_epochs=85,train_acc=[],train_loss=[],test_acc=[],test_loss=[])
+
+    for line in fp.readlines():
+        line = line.decode('utf-8')
+        if 'Avg. Loss' in line:
+            if 'train_' in line:
+                tttt = float(line.split('Avg. Loss ')[1].split(',')[0])
+                zzzz = float(line.split('Accuracy ')[1].split(')')[0])
+                fr.train_loss.append(tttt)
+                fr.train_acc.append(zzzz)
+            if 'test_' in line:
+                tttt = float(line.split('Avg. Loss ')[1].split(',')[0])
+                zzzz = float(line.split('Accuracy ')[1].split(')')[0])
+                fr.test_loss.append(tttt)
+                fr.test_acc.append(zzzz)
+    plot_fit(fr)
+
+    fp = open("resnet1.out",'rb')
+    fr = FitResult(num_epochs=93,train_acc=[],train_loss=[],test_acc=[],test_loss=[])
+    for line in fp.readlines():
+        line = str(line)[2:-1]
+        if 'Avg. Loss' in line:
+            if 'train_' in line:
+                tttt = float(line.split('Avg. Loss ')[1].split(',')[0])
+                zzzz = float(line.split('Accuracy ')[1].split(')')[0])
+                fr.train_loss.append(tttt)
+                fr.train_acc.append(zzzz)
+            if 'test_' in line:
+                tttt = float(line.split('Avg. Loss ')[1].split(',')[0])
+                zzzz = float(line.split('Accuracy ')[1].split(')')[0])
+                fr.test_loss.append(tttt)
+                fr.test_acc.append(zzzz)
+    plot_fit(fr)
+
+            # print(line)
+            # num_epochs: int
+            # train_loss: List[float]
+            # train_acc: List[float]
+            # test_loss: List[float]
+            # test_acc: List[float]
