@@ -149,7 +149,7 @@ if __name__ == '__main__':
         run_model("cifar", "srm_median_and_corr")
     '''
 
-    run_model('cifar', 'senet')
+    run_model('cifar', 'srm_with_corr')
 
 
 
