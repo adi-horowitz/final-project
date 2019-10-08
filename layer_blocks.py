@@ -14,8 +14,10 @@ class GramMatrix(nn.Module):
         # (c,d) = dimensions of a f. map (N=c*d)
 
         features = input.view(a, b, c*d)  # resise F_XL into \hat F_XL
-        G = [torch.mm(features[i,:,:], features[i,:,:].t()) for i in range(a)] # compute the gram product
-        G = torch.stack(G, dim=0)
+        # G = [torch.mm(features[i,:,:], features[i,:,:].t()) for i in range(a)] # compute the gram product
+        # G = torch.stack(G, dim=0)
+
+        G = torch.matmul(features, torch.transpose(features,1,2))
 
         # we 'normalize' the values of the gram matrix
         # by dividing by the number of element in each feature maps.
