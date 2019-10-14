@@ -12,4 +12,5 @@ def print_fit_res(model_name: str):
 
 
 if __name__ == '__main__':
-    print_fit_res("srm_with_median")
+    model_name = input('insert model name')
+    print_fit_res(model_name)

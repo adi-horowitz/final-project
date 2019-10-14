@@ -128,28 +128,8 @@ def run_model(data_name, model_name):
 
 
 if __name__ == '__main__':
-
-    # todo: take out the comment before submitting
-    '''
-    model_names = ['resnet', 'senet', 'srmnet', 'srm_with_corr', 'srm_with_median', 'srm_median_and_corr']
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name', required=True, choices=model_names)
-    args = parser.parse_args()
-    if args.model_name == 'resnet':
-        run_model("cifar", "resnt")
-    elif args.model_name == 'senet':
-        run_model("cifar", "senet")
-    elif args.model_name == 'srmnet':
-        run_model("cifar", "srmnet")
-    elif args.model_name == 'srm_with_corr':
-        run_model("cifar", "srm_with_corr")
-    elif args.model_name == 'srm_with_median':
-        run_model("cifar", "srm_with_median")
-    elif args.model_name == 'srm_median_and_corr':
-        run_model("cifar", "srm_median_and_corr")
-    '''
-
-    run_model('cifar', 'srm_with_corr')
+    model_name = input('insert model name')
+    run_model('cifar', model_name)
 
 
 
